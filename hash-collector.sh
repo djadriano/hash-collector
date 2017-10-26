@@ -146,8 +146,6 @@ function init {
     exit
   fi
 
-  echo $folder_to_be_zipped
-
   # check if passed folder to be zipped
   if [ -z "$folder_to_be_zipped" ]
   then

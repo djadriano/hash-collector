@@ -4,7 +4,7 @@
 # File.txt / folder to save the zips / folder that will be zipped in project
 #
 # Example:
-# $ ./hash.sh file.txt ~/Documents dist/
+# $ ./hash-collector.sh file.txt ~/Documents dist/
 # --------------------------------------------------------------------------------------
 
 
@@ -146,11 +146,13 @@ function init {
     exit
   fi
 
+  echo $folder_to_be_zipped
+
   # check if passed folder to be zipped
   if [ -z "$folder_to_be_zipped" ]
   then
     echo "\n${Red}-----------------------------------------------------------------------${Color_Off}"
-    echo "${Red}Please set the destiny folder${Color_Off}"
+    echo "${Red}Please set the folder that will be zipped in project${Color_Off}"
     echo "${White}Example: $ ./hash.sh name-of-file.txt path-to-destiny-folder ${bold}folder-to-be-zipped${normal}${Color_Off}"
     echo "${Red}-----------------------------------------------------------------------${Color_Off}\n"
     exit

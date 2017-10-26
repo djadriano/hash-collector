@@ -21,5 +21,5 @@ The script read the txt file line by line, so your txt should follow the structu
 ```
 
 # demo:
-[Imgur](https://i.imgur.com/aILelLW.gifv)
+![Alt Text](https://i.imgur.com/aILelLW.gif)
 

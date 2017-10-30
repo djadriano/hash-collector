@@ -1,10 +1,10 @@
 # --------------------------------------------------------------------------------------
 # How to Use:
 # The script needs the following parameters:
-# File.txt / folder to save the zips / folder that will be zipped in project
+# hash commit or .txt with list of commits
 #
 # Example:
-# $ ./hash-collector.sh file.txt ~/Documents dist/
+# $ ./hash-collector.sh 577fc5e7e1beb8f8692485f8e005fe982578d5a9
 # --------------------------------------------------------------------------------------
 
 
@@ -31,6 +31,8 @@ White='\033[0;37m'        # White
 txt_file=$1
 destiny_folder=$2
 folder_to_be_zipped=$3
+path_project=""
+default_branch="master"
 
 # -----------------------------------------------------
 # Default variables
@@ -65,6 +67,27 @@ function generate_zip_folder {
   rm -r "$hash.zip"
 }
 
+function read_hash {
+  hash=$1
+
+  # check if exist hash in git project
+  if git merge-base --is-ancestor $hash HEAD; then
+    git checkout $hash
+
+    if [ -d "./$folder_to_be_zipped" ]; then
+      generate_zip_folder $hash
+      checkout_branch
+    fi
+  else
+
+    echo "\n${Red}------------------------------------------------------------------------------${Color_Off}"
+    echo "${Red}Hash not found:${Color_Off}"
+    echo "${White}${bold}${hash}${normal}${Color_Off}"
+    echo "${Red}------------------------------------------------------------------------------${Color_Off}\n"
+
+  fi
+}
+
 function read_file {
   while IFS='' read -r hash || [[ -n "$hash" ]]; do
 
@@ -80,22 +103,7 @@ function read_file {
       echo "${White}${bold}${hash}${normal}${Color_Off}"
       echo "${Green}------------------------------------------------------------------------------${Color_Off}\n"
 
-      # check if exist hash in git project
-      if git merge-base --is-ancestor $hash HEAD; then
-        git checkout $hash
-
-        if [ -d "./$folder_to_be_zipped" ]; then
-          generate_zip_folder $hash
-          checkout_branch
-        fi
-      else
-
-        echo "\n${Red}------------------------------------------------------------------------------${Color_Off}"
-        echo "${Red}Hash not found:${Color_Off}"
-        echo "${White}${bold}${hash}${normal}${Color_Off}"
-        echo "${Red}------------------------------------------------------------------------------${Color_Off}\n"
-
-      fi
+      read_hash $hash
     fi
 
   done < "$txt_file"
@@ -106,7 +114,14 @@ function checkout_branch {
   then
       git checkout $next_line
   else
-      git checkout $current_branch
+      if [ -n "$path_project" ]
+      then
+        echo "have path project"
+        git checkout $default_branch
+      else
+        echo "don't have path project"
+        git checkout $current_branch
+      fi
 
       echo "\n${Purple}------------------------------------------------------------------------------${Color_Off}"
       echo "${Purple}Opening destiny folder:${Color_Off}"
@@ -117,46 +132,104 @@ function checkout_branch {
   fi
 }
 
-function init {
-
+function check_has_git_folder {
   if ! [ -d "./.git" ]; then
     echo "\n${Red}------------------------------------------------------------------------------${Color_Off}"
     echo "${Red}There is not a git in this project! ${Color_Off}"
     echo "${Red}------------------------------------------------------------------------------${Color_Off}\n"
     exit
   fi
+}
+
+function question_2 {
+  read -e -p "${bold}2. Please set destiny folder to save the zip(s) file(s):${normal} " READ_QUESTION_2
+
+  if ! [[ -d $READ_QUESTION_2 ]];
+  then
+    question_2
+  else
+    destiny_folder=$READ_QUESTION_2
+    question_3
+  fi
+}
+
+function question_3 {
+  read -e -p "${bold}3. Please set the name of folder to be zipped:${normal} " READ_QUESTION_3
+
+  if [ -z "$READ_QUESTION_3" ]
+  then
+    question_3
+  else
+    folder_to_be_zipped=$READ_QUESTION_3
+
+    if [ -f "$txt_file" ]
+    then
+      read_file
+    else
+      read_hash $txt_file
+    fi
+
+  fi
+}
+
+function question_1 {
+  read -e -p "${bold}1. Are you in the root of project (y/n)?${normal} " READ_QUESTION_1
+
+  if [ -z "$READ_QUESTION_1" ]
+  then
+    question_1
+  else
+    if [ "$READ_QUESTION_1" == 'n' ]
+    then
+      question_1_1
+    else
+      check_has_git_folder
+      question_2
+    fi
+  fi
+}
+
+function question_1_1 {
+  read -e -p "${bold}1.1 Please set the path of your project:${normal} " READ_QUESTION_1_1
+
+  if [ -z "$READ_QUESTION_1_1" ]
+  then
+    question_1_1
+  else
+    path_project=$READ_QUESTION_1_1
+    question_1_2
+  fi
+}
+
+function question_1_2 {
+  read -e -p "${bold}1.2 What the branch you are? [${default_branch}]${normal} " READ_QUESTION_1_2
+
+  cd $path_project
+
+  if [ "$READ_QUESTION_1_2" == '' ]
+  then
+    git checkout $default_branch
+  else
+    default_branch=$READ_QUESTION_1_2
+    git checkout $READ_QUESTION_1_2
+  fi
+
+  question_2
+}
+
+function initialize {
 
   # check if passed txt file
   if [ -z "$txt_file" ]
   then
     echo "\n${Red}------------------------------------------------------------------------------${Color_Off}"
-    echo "${Red}Please set the .txt file with hashes${Color_Off}"
-    echo "${White}Example: $ ./hash.sh ${bold}name-of-file.txt ${normal}path-to-destiny-folder folder-to-be-zipped${Color_Off}"
+    echo "${Red}Please set hash or the .txt file with hashes${Color_Off}"
+    echo "${White}Example: $ ./hash-collector.sh ${bold}name-of-file.txt or hash ${normal}${Color_Off}"
     echo "${Red}------------------------------------------------------------------------------${Color_Off}\n"
     exit
   fi
 
-  # check if passed destiny folder
-  if [ -z "$destiny_folder" ]
-  then
-    echo "\n${Red}-----------------------------------------------------------------------${Color_Off}"
-    echo "${Red}Please set the destiny folder${Color_Off}"
-    echo "${White}Example: $ ./hash.sh name-of-file.txt ${bold}path-to-destiny-folder ${normal}folder-to-be-zipped${Color_Off}"
-    echo "${Red}-----------------------------------------------------------------------${Color_Off}\n"
-    exit
-  fi
-
-  # check if passed folder to be zipped
-  if [ -z "$folder_to_be_zipped" ]
-  then
-    echo "\n${Red}-----------------------------------------------------------------------${Color_Off}"
-    echo "${Red}Please set the folder that will be zipped in project${Color_Off}"
-    echo "${White}Example: $ ./hash.sh name-of-file.txt path-to-destiny-folder ${bold}folder-to-be-zipped${normal}${Color_Off}"
-    echo "${Red}-----------------------------------------------------------------------${Color_Off}\n"
-    exit
-  fi
-
-  read_file
+  question_1
 
 }
 
@@ -164,4 +237,4 @@ function init {
 # Start the code
 # -----------------------------------------------------
 
-init
+initialize

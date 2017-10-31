@@ -25,6 +25,14 @@ The script read the txt file line by line, so your txt should follow the structu
 3ef1d4ed247d8d5389f5a419eee9a4f9cf51a527
 ```
 
+# Create alias for script:
+Edit your .bashrc and add the follow code below:
+```bash
+alias hash-collector="/usr/local/bin/hash-collector.sh"
+```
+
+Obs: Make sure you copied the hash-collector.sh for "/usr/local/bin/"
+
 # Demo:
 ![Alt Text](https://i.imgur.com/aILelLW.gif)
 

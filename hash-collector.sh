@@ -40,7 +40,7 @@ default_branch="master"
 
 count=1
 next_line=""
-current_branch=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')
+current_branch=""
 bold=$(tput bold)
 normal=$(tput sgr0)
 
@@ -138,6 +138,8 @@ function check_has_git_folder {
     echo "${Red}There is not a git in this project! ${Color_Off}"
     echo "${Red}------------------------------------------------------------------------------${Color_Off}\n"
     exit
+  else
+    current_branch=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')
   fi
 }
 

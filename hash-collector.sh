@@ -142,7 +142,7 @@ function check_has_git_folder {
 }
 
 function question_2 {
-  read -e -p "${bold}2. Please set destiny folder to save the zip(s) file(s):${normal} " READ_QUESTION_2
+  read -e -p "${bold}2. Please set the destiny folder to save the zip(s) file(s):${normal} " READ_QUESTION_2
 
   if ! [[ -d $READ_QUESTION_2 ]];
   then

@@ -34,5 +34,5 @@ alias hash-collector="/usr/local/bin/hash-collector.sh"
 Obs: Make sure you copied the hash-collector.sh for "/usr/local/bin/"
 
 # Demo:
-![Alt Text](https://i.imgur.com/aILelLW.gif)
+![Alt Text](https://i.imgur.com/jNJrZaF.gif)
 

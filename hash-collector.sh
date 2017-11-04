@@ -116,10 +116,8 @@ function checkout_branch {
   else
       if [ -n "$path_project" ]
       then
-        echo "have path project"
         git checkout $default_branch
       else
-        echo "don't have path project"
         git checkout $current_branch
       fi
 
